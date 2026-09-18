@@ -95,7 +95,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (1cm SAĞA KAYDIRILMIŞ) */
+    /* A4 BASKI DÜZENİ - TAM ORTALANMIŞ (7cm x 7cm) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -143,8 +143,7 @@
         border: none !important;
         margin: 0 auto !important;
         padding: 0 !important;
-        /* Tüm 6 kare bloğunu soldan sağa tam 1 cm kaydırma */
-        transform: translateX(1cm) !important;
+        transform: none !important; /* Sağa/sola kaydırma kaldırıldı, tam ortalandı */
       }
 
       .magnet-item {
