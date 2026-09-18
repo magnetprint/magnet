@@ -40,7 +40,7 @@
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      border: 1px dashed #aaa; /* İnce ve belirsiz kesikli çizgi */
+      border: 1px dashed #aaa;
       background: #fff;
       display: flex;
       justify-content: center;
@@ -67,7 +67,7 @@
       display: block;
     }
 
-    /* Kenar Payındaki Reklam Yazıları (Kesim çizgisine yaslı, küçük ve 180 derece ters) */
+    /* Kenar Payındaki Reklam Yazıları */
     .border-text {
       position: absolute;
       font-size: 5.5px;
@@ -78,12 +78,14 @@
       pointer-events: none;
     }
 
-    /* Kesim çizgisine yaklaştırılmış konumlar */
+    /* Üst kenar (Düz yazı) */
     .border-text.top { 
       top: 1px; 
       left: 50%; 
-      transform: translateX(-50%) rotate(180deg); 
+      transform: translateX(-50%); 
     }
+
+    /* Alt kenar (180 derece ters yazı) */
     .border-text.bottom { 
       bottom: 1px; 
       left: 50%; 
@@ -146,7 +148,7 @@
       .magnet-item {
         width: 7cm !important;
         height: 7cm !important;
-        border: 0.5pt dashed #999 !important; /* Baskıda milimetrik, ince kesikli çizgi */
+        border: 0.5pt dashed #999 !important;
         box-sizing: border-box !important;
       }
 
@@ -159,9 +161,15 @@
         font-size: 4.5pt !important;
       }
 
-      /* Baskıda tam kesim çizgisine sıfıra yakın hizalama */
-      .border-text.top { top: 0.5mm !important; }
-      .border-text.bottom { bottom: 0.5mm !important; }
+      .border-text.top { 
+        top: 0.5mm !important; 
+        transform: translateX(-50%) !important;
+      }
+
+      .border-text.bottom { 
+        bottom: 0.5mm !important; 
+        transform: translateX(-50%) rotate(180deg) !important;
+      }
     }
   </style>
 </head>
@@ -237,12 +245,12 @@
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
-          // Üst kenara Produsert i Moss
+          // Üst kenar: Düz okunur Produsert i Moss
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
           textTop.innerText = 'Produsert i Moss';
 
-          // Alt kenara Søstermagnet - Bilge og iLKE
+          // Alt kenar: 180 derece ters Søstermagnet - Bilge og iLKE
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
           textBottom.innerText = 'Søstermagnet - Bilge og iLKE';
