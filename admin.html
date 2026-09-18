@@ -30,21 +30,47 @@
       display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
     }
     
+    /* A4 Baskı Şablonu */
     .print-grid {
-      width: 100%; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #ccc;
-      margin: 20px auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px;
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border: 1px solid #ccc;
+      margin: 20px auto;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
-    .print-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
     
-    .btn-print {
-      background: #34c759; color: white; border: none; padding: 16px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
+    /* Mükemmel Kare Çerçeveler */
+    .print-grid .img-wrapper {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      border-radius: 6px;
+      background: #eee;
     }
 
+    .print-grid img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    
+    .btn-print {
+      background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
+    }
+
+    /* Yazıcıya Gönderildiğinde Sadece Şablonu Göster */
     @media print {
-      body * { visibility: hidden; }
-      .print-grid, .print-grid * { visibility: visible; }
+      body { background: white; padding: 0; margin: 0; }
+      .container { max-width: 100%; }
+      .search-box, h1, .result-card h3, .result-card p, .btn-print { display: none !important; }
+      .result-card { box-shadow: none; padding: 0; background: transparent; display: block !important; }
       .print-grid {
-        position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: none; padding: 0; margin: 0;
+        position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; border: none; padding: 0; margin: 0; gap: 15px;
       }
     }
   </style>
@@ -65,7 +91,7 @@
     
     <div class="print-grid" id="printGrid"></div>
 
-    <button class="btn-print" onclick="window.print()">Skriv ut (Print)</button>
+    <button class="btn-print" onclick="startMobilePrint()">Skriv ut (Print)</button>
   </div>
 </div>
 
@@ -112,9 +138,14 @@
       const imagesList = data.images || data.photos;
       if (imagesList && Array.isArray(imagesList)) {
         imagesList.forEach(imgSrc => {
+          const wrapper = document.createElement('div');
+          wrapper.className = 'img-wrapper';
+
           const img = document.createElement('img');
           img.src = imgSrc;
-          grid.appendChild(img);
+          
+          wrapper.appendChild(img);
+          grid.appendChild(wrapper);
         });
       }
 
@@ -123,6 +154,14 @@
     }).catch(err => {
       alert("Feil ved henting: " + err.message);
     });
+  }
+
+  // Mobil & Masaüstü Uyumlu Yazdırma Tetikleyicisi
+  function startMobilePrint() {
+    // Mobil Safari/Chrome dokunma olayının (user interaction) işlenmesi için kısa gecikme
+    setTimeout(function() {
+      window.print();
+    }, 150);
   }
 </script>
 
