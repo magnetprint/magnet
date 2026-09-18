@@ -12,7 +12,7 @@
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: #f4f5f7; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
-    .container { max-width: 600px; width: 100%; text-align: center; }
+    .container { max-width: 500px; width: 100%; text-align: center; }
     
     h1 { color: #333; margin-bottom: 20px; }
     
@@ -20,7 +20,7 @@
       display: flex; gap: 10px; margin-bottom: 25px;
     }
     input[type="text"] {
-      flex: 1; padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 18px; text-align: center; font-weight: bold;
+      flex: 1; padding: 14px; border: 2px solid #007aff; border-radius: 8px; font-size: 20px; text-align: center; font-weight: bold;
     }
     .btn-search {
       background: #007aff; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
@@ -31,7 +31,7 @@
     }
     
     .print-grid {
-      width: 100%; max-width: 400px; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #ccc;
+      width: 100%; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #ccc;
       margin: 20px auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px;
     }
     .print-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
@@ -40,7 +40,6 @@
       background: #34c759; color: white; border: none; padding: 16px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
     }
 
-    /* Print Stilleri (Yazıcıdan Çıktı Alırken Sadece Fotoğraflar Görünür) */
     @media print {
       body * { visibility: hidden; }
       .print-grid, .print-grid * { visibility: visible; }
@@ -56,7 +55,7 @@
   <h1>Admin Utskriftspanel</h1>
   
   <div class="search-box">
-    <input type="text" id="codeInput" placeholder="Skriv inn 4-sifret kode" maxlength="4">
+    <input type="text" id="codeInput" placeholder="4-sifret kode" maxlength="4">
     <button class="btn-search" onclick="fetchOrder()">Hent bilder</button>
   </div>
 
@@ -64,16 +63,13 @@
     <h3>Utskriftskode: <span id="displayCode" style="color: #007aff;">----</span></h3>
     <p style="color: #666; font-size: 14px;" id="displayTime"></p>
     
-    <div class="print-grid" id="printGrid">
-      <!-- Fotoğraflar Buraya Yüklenecek -->
-    </div>
+    <div class="print-grid" id="printGrid"></div>
 
     <button class="btn-print" onclick="window.print()">Skriv ut (Print)</button>
   </div>
 </div>
 
 <script>
-  // Firebase Konfigurasjon (index.html ile birebir aynı)
   const firebaseConfig = {
     apiKey: "AIzaSyD2-k8VLYC-h4WEs5AbnH16wT9AYISjK8g",
     authDomain: "magnet-c8c2a.firebaseapp.com",
@@ -103,7 +99,6 @@
         return;
       }
 
-      // Verileri Ekrana Bas
       document.getElementById('displayCode').innerText = code;
       
       if (data.timestamp) {
@@ -114,8 +109,7 @@
       const grid = document.getElementById('printGrid');
       grid.innerHTML = '';
 
-      // Fotoğrafları Düzgünce Yükle (images anahtarını okur)
-      const imagesList = data.images || data.photos; // Her iki olasılığı da destekler
+      const imagesList = data.images || data.photos;
       if (imagesList && Array.isArray(imagesList)) {
         imagesList.forEach(imgSrc => {
           const img = document.createElement('img');
