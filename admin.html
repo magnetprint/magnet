@@ -1,75 +1,136 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="no">
 <head>
   <meta charset="UTF-8">
-  <title>A4 Magnet Baskı Paneli</title>
-  <style>
-    body { font-family: sans-serif; background: #1e1e1e; color: white; padding: 20px; margin: 0; }
-    .grid { display: flex; flex-wrap: wrap; gap: 20px; }
-    .card { background: #2a2a2a; border-radius: 8px; padding: 15px; width: 280px; text-align: center; }
-    .card img { width: 100%; aspect-ratio: 1 / 1.414; object-fit: contain; background: white; border-radius: 4px; }
-    .code { font-size: 22px; color: #34c759; font-weight: bold; margin-bottom: 10px; }
-    .btn-print { background: #34c759; color: white; border: none; padding: 10px; border-radius: 6px; width: 100%; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 10px; }
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Utskriftspanel</title>
 
-    /* A4 Birebir Baskı Ayarları */
-    @media print {
-      @page { size: A4 portrait; margin: 0; }
-      body * { visibility: hidden; }
-      #printArea, #printArea * { visibility: visible; }
-      #printArea { position: fixed; left: 0; top: 0; width: 210mm; height: 297mm; }
-      #printArea img { width: 100%; height: 100%; object-fit: contain; }
-    }
-  </style>
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f4f5f7; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 600px; width: 100%; text-align: center; }
+    
+    h1 { color: #333; margin-bottom: 20px; }
+    
+    .search-box {
+      display: flex; gap: 10px; margin-bottom: 25px;
+    }
+    input[type="text"] {
+      flex: 1; padding: 14px; border: 2px solid #ddd; border-radius: 8px; font-size: 18px; text-align: center; font-weight: bold;
+    }
+    .btn-search {
+      background: #007aff; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+    }
+    
+    .result-card {
+      display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
+    }
+    
+    .print-grid {
+      width: 100%; max-width: 400px; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #ccc;
+      margin: 20px auto; padding: 10px; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px;
+    }
+    .print-grid img { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; }
+    
+    .btn-print {
+      background: #34c759; color: white; border: none; padding: 16px 30px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
+    }
+
+    /* Print Stilleri (Yazıcıdan Çıktı Alırken Sadece Fotoğraflar Görünür) */
+    @media print {
+      body * { visibility: hidden; }
+      .print-grid, .print-grid * { visibility: visible; }
+      .print-grid {
+        position: absolute; left: 0; top: 0; width: 100%; height: 100%; border: none; padding: 0; margin: 0;
+      }
+    }
+  </style>
 </head>
 <body>
 
-<h1>🖨️ A4 Magnet Baskı Kuyruğu</h1>
-<div class="grid" id="printGrid">Bekleniyor...</div>
-<div id="printArea"></div>
+<div class="container">
+  <h1>Admin Utskriftspanel</h1>
+  
+  <div class="search-box">
+    <input type="text" id="codeInput" placeholder="Skriv inn 4-sifret kode" maxlength="4">
+    <button class="btn-search" onclick="fetchOrder()">Hent bilder</button>
+  </div>
+
+  <div class="result-card" id="resultCard">
+    <h3>Utskriftskode: <span id="displayCode" style="color: #007aff;">----</span></h3>
+    <p style="color: #666; font-size: 14px;" id="displayTime"></p>
+    
+    <div class="print-grid" id="printGrid">
+      <!-- Fotoğraflar Buraya Yüklenecek -->
+    </div>
+
+    <button class="btn-print" onclick="window.print()">Skriv ut (Print)</button>
+  </div>
+</div>
 
 <script>
+  // Firebase Konfigurasjon (index.html ile birebir aynı)
   const firebaseConfig = {
     apiKey: "AIzaSyD2-k8VLYC-h4WEs5AbnH16wT9AYISjK8g",
-  authDomain: "magnet-c8c2a.firebaseapp.com",
-  databaseURL: "https://magnet-c8c2a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "magnet-c8c2a",
-  storageBucket: "magnet-c8c2a.firebasestorage.app",
-  messagingSenderId: "148748324402",
-  appId: "1:148748324402:web:878ce829b2038c8613362b"
+    authDomain: "magnet-c8c2a.firebaseapp.com",
+    databaseURL: "https://magnet-c8c2a-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "magnet-c8c2a",
+    storageBucket: "magnet-c8c2a.firebasestorage.app",
+    messagingSenderId: "148748324402",
+    appId: "1:148748324402:web:878ce829b2038c8613362b"
   };
+  
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  db.ref('prints').on('value', (snapshot) => {
-    const data = snapshot.val();
-    const grid = document.getElementById('printGrid');
-    grid.innerHTML = '';
-
-    if (!data) {
-      grid.innerHTML = '<p>Bekleyen baskı isteği yok.</p>';
+  function fetchOrder() {
+    const code = document.getElementById('codeInput').value.trim();
+    if (code.length !== 4) {
+      alert("Vennligst skriv inn en gyldig 4-sifret kode!");
       return;
     }
 
-    Object.keys(data).forEach(key => {
-      const item = data[key];
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="code">Kod: ${item.code}</div>
-        <img src="${item.image}">
-        <button class="btn-print" onclick="printPage('${key}', '${item.image}')">A4 Yazdır ve Sil</button>
-      `;
-      grid.appendChild(card);
-    });
-  });
+    db.ref('prints/' + code).once('value').then((snapshot) => {
+      const data = snapshot.val();
+      
+      if (!data) {
+        alert("Ingen utskrift funnet med denne koden!");
+        document.getElementById('resultCard').style.display = 'none';
+        return;
+      }
 
-  function printPage(key, imageSrc) {
-    document.getElementById('printArea').innerHTML = `<img src="${imageSrc}">`;
-    window.print();
-    db.ref('prints/' + key).remove();
+      // Verileri Ekrana Bas
+      document.getElementById('displayCode').innerText = code;
+      
+      if (data.timestamp) {
+        const date = new Date(data.timestamp);
+        document.getElementById('displayTime').innerText = "Mottatt: " + date.toLocaleTimeString();
+      }
+
+      const grid = document.getElementById('printGrid');
+      grid.innerHTML = '';
+
+      // Fotoğrafları Düzgünce Yükle (images anahtarını okur)
+      const imagesList = data.images || data.photos; // Her iki olasılığı da destekler
+      if (imagesList && Array.isArray(imagesList)) {
+        imagesList.forEach(imgSrc => {
+          const img = document.createElement('img');
+          img.src = imgSrc;
+          grid.appendChild(img);
+        });
+      }
+
+      document.getElementById('resultCard').style.display = 'block';
+
+    }).catch(err => {
+      alert("Feil ved henting: " + err.message);
+    });
   }
 </script>
+
 </body>
 </html>
