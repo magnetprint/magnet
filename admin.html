@@ -22,7 +22,7 @@
     
     .result-card { display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
     
-    /* Web Ekranı Önizlemesi */
+    /* Web Önizlemesi Dinamik Grid */
     .print-grid {
       width: 100%;
       max-width: 400px;
@@ -31,8 +31,7 @@
       margin: 20px auto;
       padding: 12px;
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 10px;
     }
     .print-grid .img-wrapper { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 4px; background: #eee; }
     .print-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -40,7 +39,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* TEK A4 SAYFASINA KUSURSUZ SIĞDIRMA (@media print) */
+    /* DİNAMİK A4 BASKI AYARLARI (@media print) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -78,9 +77,6 @@
 
       .print-grid {
         display: grid !important;
-        grid-template-columns: repeat(2, 6cm) !important;
-        grid-template-rows: repeat(3, 6cm) !important;
-        gap: 0.8cm !important;
         justify-content: center !important;
         align-content: center !important;
         width: 210mm !important;
@@ -90,16 +86,26 @@
         padding: 0 !important;
       }
 
-      .print-grid .img-wrapper {
+      /* 6'lı Paket Düzeni (2 Sütun x 3 Satır - 6x6 cm) */
+      .print-grid.grid-6 {
+        grid-template-columns: repeat(2, 6cm) !important;
+        grid-template-rows: repeat(3, 6cm) !important;
+        gap: 0.8cm !important;
+      }
+      .print-grid.grid-6 .img-wrapper, .print-grid.grid-6 img {
         width: 6cm !important;
         height: 6cm !important;
-        border-radius: 0 !important;
       }
 
-      .print-grid img {
-        width: 6cm !important;
-        height: 6cm !important;
-        object-fit: cover !important;
+      /* 9'lu ve 12'li Paket Düzeni (3 Sütun) */
+      .print-grid.grid-9, .print-grid.grid-12 {
+        grid-template-columns: repeat(3, 5.5cm) !important;
+        gap: 0.5cm !important;
+      }
+      .print-grid.grid-9 .img-wrapper, .print-grid.grid-9 img,
+      .print-grid.grid-12 .img-wrapper, .print-grid.grid-12 img {
+        width: 5.5cm !important;
+        height: 5.5cm !important;
       }
     }
   </style>
@@ -165,6 +171,17 @@
       grid.innerHTML = '';
 
       const imagesList = data.images || data.photos;
+      const count = data.count || (imagesList ? imagesList.length : 6);
+
+      // Grid sınıfını pakete göre güncelle
+      grid.className = `print-grid grid-${count}`;
+
+      if (count === 6) {
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      } else {
+        grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+      }
+
       if (imagesList && Array.isArray(imagesList)) {
         imagesList.forEach(imgSrc => {
           const wrapper = document.createElement('div');
