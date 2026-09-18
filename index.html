@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bildeutskrift</title>
 
-  <!-- Cropper.js (Bildebeskjæring) -->
+  <!-- Cropper.js -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
@@ -18,7 +18,6 @@
     body { background: #f4f5f7; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
     .container { max-width: 450px; width: 100%; text-align: center; }
     
-    /* Logo Område */
     .logo-container { margin-bottom: 20px; text-align: center; }
     .logo-container img { max-width: 180px; height: auto; display: block; margin: 0 auto; }
 
@@ -30,7 +29,6 @@
     }
     .btn-select:active { background: #0056b3; }
 
-    /* A4 Forhåndsvisning */
     .a4-preview {
       width: 100%; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #e0e0e0;
       border-radius: 12px; padding: 10px; display: grid;
@@ -57,7 +55,6 @@
     .code-box h2 { margin: 10px 0 0 0; color: #248a3d; font-size: 42px; letter-spacing: 2px; }
     .code-box p { margin: 0; color: #248a3d; font-size: 15px; }
 
-    /* Modal for Beskjæring (Crop Modal) */
     .modal {
       display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
       background-color: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; padding: 15px;
@@ -74,7 +71,7 @@
 <body>
 
 <div class="container">
-  <!-- Logo -->
+  <!-- Logo Område -->
   <div class="logo-container">
     <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
   </div>
@@ -166,7 +163,7 @@
 
     if (cropper) cropper.destroy();
     cropper = new Cropper(image, {
-      aspectRatio: 1, // Magnetler için kare oran
+      aspectRatio: 1,
       viewMode: 1,
       background: false,
       autoCropArea: 1
