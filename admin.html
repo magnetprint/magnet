@@ -35,12 +35,12 @@
       gap: 12px;
     }
 
-    /* Magnet Kutu Yapısı (7x7 cm Şablonu) */
+    /* Magnet Kutu Yapısı (7x7 cm Şablonu) - Belli belirsiz ince kesikli çizgi */
     .magnet-item {
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      border: 1px solid #000;
+      border: 1px dashed #aaa; /* İnce ve belirsiz kesikli çizgi */
       background: #fff;
       display: flex;
       justify-content: center;
@@ -48,7 +48,7 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 6x6 cm Görsel Alanı */
+    /* Ortadaki 6x6 cm Görsel Alanı (7 cm içinde 6 cm) */
     .magnet-item .photo-area {
       width: 85.7%; 
       height: 85.7%;
@@ -67,24 +67,25 @@
       display: block;
     }
 
-    /* Kenar Payındaki Reklam Yazıları */
+    /* Kenar Payındaki Reklam Yazıları (Kesim çizgisine yaslı, küçük ve 180 derece ters) */
     .border-text {
       position: absolute;
-      font-size: 6.5px;
-      font-weight: 600;
-      color: #333;
+      font-size: 5.5px;
+      font-weight: 500;
+      color: #555;
       white-space: nowrap;
       z-index: 1;
       pointer-events: none;
     }
 
+    /* Kesim çizgisine yaklaştırılmış konumlar */
     .border-text.top { 
-      top: 2%; 
+      top: 1px; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
     .border-text.bottom { 
-      bottom: 2%; 
+      bottom: 1px; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
@@ -92,7 +93,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ */
+    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (İÇİ 6cm x 6cm) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -145,7 +146,7 @@
       .magnet-item {
         width: 7cm !important;
         height: 7cm !important;
-        border: 0.5pt solid #000 !important;
+        border: 0.5pt dashed #999 !important; /* Baskıda milimetrik, ince kesikli çizgi */
         box-sizing: border-box !important;
       }
 
@@ -155,11 +156,12 @@
       }
 
       .border-text {
-        font-size: 5.5pt !important;
+        font-size: 4.5pt !important;
       }
 
-      .border-text.top { top: 1.5mm !important; }
-      .border-text.bottom { bottom: 1.5mm !important; }
+      /* Baskıda tam kesim çizgisine sıfıra yakın hizalama */
+      .border-text.top { top: 0.5mm !important; }
+      .border-text.bottom { bottom: 0.5mm !important; }
     }
   </style>
 </head>
@@ -223,7 +225,6 @@
       const grid = document.getElementById('printGrid');
       grid.innerHTML = '';
 
-      // Firebase verisinin dizi mi yoksa nesne mi olduğunu kontrol et
       let imagesList = [];
       if (data.images) {
         imagesList = Array.isArray(data.images) ? data.images : Object.values(data.images);
@@ -236,13 +237,15 @@
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
+          // Üst kenara Produsert i Moss
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
-          textTop.innerText = 'Søstermagnet - Bilge og iLKE';
+          textTop.innerText = 'Produsert i Moss';
 
+          // Alt kenara Søstermagnet - Bilge og iLKE
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
-          textBottom.innerText = 'Produsert i Moss';
+          textBottom.innerText = 'Søstermagnet - Bilge og iLKE';
 
           const photoArea = document.createElement('div');
           photoArea.className = 'photo-area';
