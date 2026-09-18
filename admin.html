@@ -35,7 +35,7 @@
       gap: 12px;
     }
 
-    /* Magnet Kutu Yapısı (7x7 cm Şablonu) - Belli belirsiz ince kesikli çizgi */
+    /* Magnet Kutu Yapısı (7x7 cm Şablonu) */
     .magnet-item {
       position: relative;
       width: 100%;
@@ -95,7 +95,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (İÇİ 6cm x 6cm) */
+    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (1cm SAĞA KAYDIRILMIŞ) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -143,6 +143,8 @@
         border: none !important;
         margin: 0 auto !important;
         padding: 0 !important;
+        /* Tüm 6 kare bloğunu soldan sağa tam 1 cm kaydırma */
+        transform: translateX(1cm) !important;
       }
 
       .magnet-item {
@@ -245,12 +247,10 @@
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
-          // Üst kenar: Düz okunur Produsert i Moss
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
           textTop.innerText = 'Produsert i Moss';
 
-          // Alt kenar: 180 derece ters Søstermagnet - Bilge og iLKE
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
           textBottom.innerText = 'Søstermagnet - Bilge og iLKE';
