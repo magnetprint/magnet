@@ -1,150 +1,214 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="no">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>A4 Magnet Tasarım</title>
-  <style>
-    * { box-sizing: border-box; font-family: sans-serif; }
-    body { background: #f0f2f5; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
-    .container { max-width: 450px; width: 100%; text-align: center; }
-    
-    /* A4 Oranlı Ön İzleme Alanı (210x297mm Oranı) */
-    .a4-preview {
-      width: 100%;
-      aspect-ratio: 1 / 1.414;
-      background: white;
-      border: 2px solid #ddd;
-      border-radius: 8px;
-      padding: 10px;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      grid-template-rows: 1fr 1fr 1fr;
-      gap: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      margin-bottom: 15px;
-    }
-    
-    .slot {
-      border: 2px dashed #bbb;
-      border-radius: 6px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      position: relative;
-      background: #fafafa;
-      cursor: pointer;
-    }
-    .slot img { width: 100%; height: 100%; object-fit: cover; }
-    .slot span { font-size: 12px; color: #888; font-weight: bold; }
+  <title>Bildeutskrift</title>
 
-    .btn { background: #007aff; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: bold; width: 100%; cursor: pointer; margin-bottom: 10px; }
-    .btn:disabled { background: #ccc; }
-    
-    .code-box { display: none; background: #eef9f2; border: 2px solid #34c759; padding: 15px; border-radius: 8px; margin-top: 15px; }
-    .code-box h2 { margin: 0; color: #34c759; font-size: 36px; }
-  </style>
+  <!-- Cropper.js (Bildebeskjæring) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f4f5f7; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+    .container { max-width: 450px; width: 100%; text-align: center; }
+    
+    /* Logo Område */
+    .logo-container { margin-bottom: 20px; text-align: center; }
+    .logo-container img { max-width: 180px; height: auto; display: block; margin: 0 auto; }
+
+    .btn-select {
+      background: #007aff; color: white; border: none; padding: 16px 20px;
+      border-radius: 12px; font-size: 16px; font-weight: 600; width: 100%;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.25);
+      margin-bottom: 20px; transition: background 0.2s;
+    }
+    .btn-select:active { background: #0056b3; }
+
+    /* A4 Forhåndsvisning */
+    .a4-preview {
+      width: 100%; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #e0e0e0;
+      border-radius: 12px; padding: 10px; display: grid;
+      grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px;
+    }
+    .slot {
+      border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center;
+      align-items: center; overflow: hidden; position: relative; background: #fafafa;
+      cursor: pointer; transition: border-color 0.2s;
+    }
+    .slot.filled { border: 2px solid #007aff; }
+    .slot img { width: 100%; height: 100%; object-fit: cover; }
+    .slot-icon { font-size: 24px; color: #bbb; font-weight: 300; }
+    
+    .btn-submit {
+      background: #34c759; color: white; border: none; padding: 16px;
+      border-radius: 12px; font-size: 17px; font-weight: 600; width: 100%;
+      cursor: pointer; box-shadow: 0 4px 12px rgba(52,199,89,0.25);
+    }
+    .btn-submit:disabled { background: #d1d1d6; box-shadow: none; cursor: not-allowed; }
+    
+    .code-box { display: none; background: #eefbf1; border: 2px solid #34c759; padding: 20px; border-radius: 12px; margin-top: 20px; }
+    .code-box h2 { margin: 10px 0 0 0; color: #248a3d; font-size: 42px; letter-spacing: 2px; }
+    .code-box p { margin: 0; color: #248a3d; font-size: 15px; }
+
+    /* Modal for Beskjæring (Crop Modal) */
+    .modal {
+      display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+      background-color: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; padding: 15px;
+    }
+    .modal-content { max-width: 90%; max-height: 70vh; margin-bottom: 15px; background: #000; }
+    .modal-buttons { display: flex; gap: 10px; width: 100%; max-width: 400px; }
+    .btn-modal {
+      flex: 1; padding: 14px; border: none; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer;
+    }
+    .btn-cancel { background: #8e8e93; color: white; }
+    .btn-save { background: #007aff; color: white; }
+  </style>
 </head>
 <body>
 
 <div class="container">
-  <h2>6'lı Magnet Tasarımı</h2>
-  <p style="font-size: 13px; color: #666;">Kutulara dokunarak 6 adet fotoğraf seçin:</p>
-
-  <!-- A4 Ön İzleme Sayfası -->
-  <div class="a4-preview" id="a4Canvas">
-    <div class="slot" onclick="triggerInput(0)"><span id="txt-0">+ Fotoğraf 1</span><img id="img-0" style="display:none;"></div>
-    <div class="slot" onclick="triggerInput(1)"><span id="txt-1">+ Fotoğraf 2</span><img id="img-1" style="display:none;"></div>
-    <div class="slot" onclick="triggerInput(2)"><span id="txt-2">+ Fotoğraf 3</span><img id="img-2" style="display:none;"></div>
-    <div class="slot" onclick="triggerInput(3)"><span id="txt-3">+ Fotoğraf 4</span><img id="img-3" style="display:none;"></div>
-    <div class="slot" onclick="triggerInput(4)"><span id="txt-4">+ Fotoğraf 5</span><img id="img-4" style="display:none;"></div>
-    <div class="slot" onclick="triggerInput(5)"><span id="txt-5">+ Fotoğraf 6</span><img id="img-5" style="display:none;"></div>
+  <!-- Logo -->
+  <div class="logo-container">
+    <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
   </div>
 
-  <input type="file" id="fileInput" accept="image/*" style="display:none;">
+  <button class="btn-select" onclick="document.getElementById('multiInput').click()">Velg 6 bilder fra galleriet</button>
+  <input type="file" id="multiInput" accept="image/*" multiple style="display:none;" onchange="handleFiles(this.files)">
 
-  <button class="btn" id="sendBtn" onclick="processAndUpload()">Baskı Kodu Al</button>
+  <div class="a4-preview">
+    <div class="slot" id="slot-0" onclick="editSlot(0)"><span class="slot-icon">+</span></div>
+    <div class="slot" id="slot-1" onclick="editSlot(1)"><span class="slot-icon">+</span></div>
+    <div class="slot" id="slot-2" onclick="editSlot(2)"><span class="slot-icon">+</span></div>
+    <div class="slot" id="slot-3" onclick="editSlot(3)"><span class="slot-icon">+</span></div>
+    <div class="slot" id="slot-4" onclick="editSlot(4)"><span class="slot-icon">+</span></div>
+    <div class="slot" id="slot-5" onclick="editSlot(5)"><span class="slot-icon">+</span></div>
+  </div>
+
+  <button class="btn-submit" id="submitBtn" disabled onclick="uploadImages()">Få utskriftskode</button>
 
   <div class="code-box" id="codeBox">
-    <p style="margin:0;">Baskı Kodunuz:</p>
+    <p>Din utskriftskode:</p>
     <h2 id="printCode">----</h2>
-    <p style="font-size:12px; color:#555;">Bu kodu stanttaki görevliye söyleyerek A4 magnetinizi alabilirsiniz.</p>
+    <p style="margin-top: 8px; font-size: 13px; color: #555;">Oppgi denne koden til betjeningen ved utskrift.</p>
+  </div>
+</div>
+
+<!-- Crop Modal -->
+<div class="modal" id="cropModal">
+  <div class="modal-content">
+    <img id="cropImage" src="" style="max-width: 100%;">
+  </div>
+  <div class="modal-buttons">
+    <button class="btn-modal btn-cancel" onclick="closeModal()">Avbryt</button>
+    <button class="btn-modal btn-save" onclick="saveCrop()">Lagre bilde</button>
   </div>
 </div>
 
 <script>
-  // Firebase Yapılandırması
+  // Firebase Konfigurasjon
   const firebaseConfig = {
-  apiKey: "AIzaSyD2-k8VLYC-h4WEs5AbnH16wT9AYISjK8g",
-  authDomain: "magnet-c8c2a.firebaseapp.com",
-  databaseURL: "https://magnet-c8c2a-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "magnet-c8c2a",
-  storageBucket: "magnet-c8c2a.firebasestorage.app",
-  messagingSenderId: "148748324402",
-  appId: "1:148748324402:web:878ce829b2038c8613362b"
-};
+    databaseURL: "https://magnet-b5cd6-default-rtdb.europe-west1.firebasedatabase.app"
+  };
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
-  let activeIndex = null;
-  let loadedCount = 0;
+  let originalImages = new Array(6).fill(null);
+  let processedImages = new Array(6).fill(null);
+  let cropper = null;
+  let currentSlotIndex = null;
 
-  function triggerInput(index) {
-    activeIndex = index;
-    document.getElementById('fileInput').click();
-  }
-
-  document.getElementById('fileInput').addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file && activeIndex !== null) {
-      const reader = new FileReader();
-      reader.onload = function(evt) {
-        const img = document.getElementById('img-' + activeIndex);
-        img.src = evt.target.result;
-        img.style.display = 'block';
-        document.getElementById('txt-' + activeIndex).style.display = 'none';
-        loadedCount++;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  function processAndUpload() {
-    if (loadedCount === 0) {
-      alert("Lütfen en az 1 fotoğraf seçin!");
+  function handleFiles(files) {
+    if (files.length !== 6) {
+      alert("Vennligst velg nøyaktig 6 bilder! (Valgt nå: " + files.length + ")");
       return;
     }
 
-    const btn = document.getElementById('sendBtn');
-    btn.innerText = "A4 Sayfası Hazırlanıyor...";
-    btn.disabled = true;
+    let loadedCount = 0;
+    Array.from(files).forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        originalImages[index] = e.target.result;
+        processedImages[index] = e.target.result;
+        
+        updateSlotUI(index, e.target.result);
+        loadedCount++;
 
-    // A4 Alanını Tek Bir Yüksek Çözünürlüklü Resme Dönüştür
-    const a4Area = document.getElementById('a4Canvas');
-    html2canvas(a4Area, { scale: 2 }).then(canvas => {
-      const compiledImage = canvas.toDataURL('image/jpeg', 0.85);
-      const randomCode = Math.floor(1000 + Math.random() * 9000);
-
-      db.ref('prints/' + randomCode).set({
-        code: randomCode,
-        image: compiledImage,
-        timestamp: Date.now()
-      }, function(err) {
-        if (!err) {
-          btn.style.display = 'none';
-          document.getElementById('printCode').innerText = randomCode;
-          document.getElementById('codeBox').style.display = 'block';
-        } else {
-          alert("Hata oluştu!");
-          btn.disabled = false;
+        if (loadedCount === 6) {
+          document.getElementById('submitBtn').disabled = false;
         }
-      });
+      }
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function updateSlotUI(index, imgSrc) {
+    const slot = document.getElementById(`slot-${index}`);
+    slot.innerHTML = `<img src="${imgSrc}">`;
+    slot.classList.add('filled');
+  }
+
+  function editSlot(index) {
+    if (!originalImages[index]) return;
+    currentSlotIndex = index;
+
+    const modal = document.getElementById('cropModal');
+    const image = document.getElementById('cropImage');
+    image.src = originalImages[index];
+
+    modal.style.display = 'flex';
+
+    if (cropper) cropper.destroy();
+    cropper = new Cropper(image, {
+      aspectRatio: 1, // Magnetler için kare oran
+      viewMode: 1,
+      background: false,
+      autoCropArea: 1
+    });
+  }
+
+  function closeModal() {
+    document.getElementById('cropModal').style.display = 'none';
+    if (cropper) cropper.destroy();
+  }
+
+  function saveCrop() {
+    if (!cropper) return;
+    const canvas = cropper.getCroppedCanvas({ width: 600, height: 600 });
+    const croppedDataURL = canvas.toDataURL('image/jpeg', 0.85);
+
+    processedImages[currentSlotIndex] = croppedDataURL;
+    updateSlotUI(currentSlotIndex, croppedDataURL);
+    closeModal();
+  }
+
+  function uploadImages() {
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Laster opp...";
+
+    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    
+    db.ref('prints/' + code).set({
+      images: processedImages,
+      timestamp: Date.now()
+    }).then(() => {
+      document.getElementById('printCode').innerText = code;
+      document.getElementById('codeBox').style.display = 'block';
+      submitBtn.innerText = "Få utskriftskode";
+    }).catch(err => {
+      alert("Feil oppstod: " + err.message);
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Få utskriftskode";
     });
   }
 </script>
+
 </body>
 </html>
