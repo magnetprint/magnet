@@ -48,7 +48,7 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 6x6 cm Görsel Alanı (7 cm içinde 6 cm) */
+    /* Ortadaki 6x6 cm Görsel Alanı */
     .magnet-item .photo-area {
       width: 85.7%; 
       height: 85.7%;
@@ -67,7 +67,7 @@
       display: block;
     }
 
-    /* Kenar Payındaki Reklam Yazıları (180 Derece Ters) */
+    /* Kenar Payındaki Reklam Yazıları */
     .border-text {
       position: absolute;
       font-size: 6.5px;
@@ -92,7 +92,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (İÇİ 6cm x 6cm) */
+    /* A4 BASKI DÜZENİ */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -223,7 +223,7 @@
       const grid = document.getElementById('printGrid');
       grid.innerHTML = '';
 
-      // Firebase dizi/nesne uyumluluk kontrolü
+      // Firebase verisinin dizi mi yoksa nesne mi olduğunu kontrol et
       let imagesList = [];
       if (data.images) {
         imagesList = Array.isArray(data.images) ? data.images : Object.values(data.images);
@@ -238,11 +238,11 @@
 
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
-          textTop.innerText = ‘Søstermagnet - Bilge og iLKE';
+          textTop.innerText = 'Produsert i Moss - Bilge og iLKE';
 
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
-          textBottom.innerText = 'Produsert i Moss’;
+          textBottom.innerText = 'Produsert i Moss - Bilge og iLKE';
 
           const photoArea = document.createElement('div');
           photoArea.className = 'photo-area';
