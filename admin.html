@@ -22,7 +22,7 @@
     
     .result-card { display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
     
-    /* Ekran Önizleme Grid'i */
+    /* Web Önizleme Grid'i */
     .print-grid {
       width: 100%;
       max-width: 400px;
@@ -34,13 +34,58 @@
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
-    .print-grid .img-wrapper { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 4px; background: #eee; }
-    .print-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    
+
+    /* Magnet Kutu Yapısı (7x7 cm Şablonu) */
+    .magnet-item {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 1px solid #000; /* İnce siyah kesim çizgisi */
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    /* Ortadaki 5x5 cm Görsel Area */
+    .magnet-item .photo-area {
+      width: 71.4%; /* 7cm içinde 5cm oranında (~%71.4) */
+      height: 71.4%;
+      position: relative;
+      z-index: 2;
+      overflow: hidden;
+    }
+
+    .magnet-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* 1'er cm'lik Kenar Payındaki Reklam Yazıları (180 derece DÖNDÜRÜLMÜŞ) */
+    .border-text {
+      position: absolute;
+      font-size: 7px;
+      font-weight: bold;
+      color: #333;
+      white-space: nowrap;
+      transform: rotate(180deg); /* Kıvrılınca düz okunması için 180 derece ters */
+      z-index: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .border-text.top { top: 2px; left: 50%; transform: translateX(-50%) rotate(180deg); }
+    .border-text.bottom { bottom: 2px; left: 50%; transform: translateX(-50%) rotate(180deg); }
+    .border-text.left { left: -15px; top: 50%; transform: translateY(-50%) rotate(90deg); } /* Yan kenar için ayarlama */
+    .border-text.right { right: -15px; top: 50%; transform: translateY(-50%) rotate(270deg); }
+
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI AYARLARI - AÇIK KESİM BOŞLUKLU DÜZEN */
+    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm KESİM PAYLI */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -80,8 +125,7 @@
         display: grid !important;
         grid-template-columns: repeat(2, 7cm) !important;
         grid-template-rows: repeat(3, 7cm) !important;
-        /* row-gap (dikey): 1.5cm | column-gap (yatay): 2.5cm */
-        gap: 1.5cm 3.8cm !important; 
+        gap: 1.5cm 3.8cm !important;
         justify-content: center !important;
         align-content: center !important;
         width: 210mm !important;
@@ -91,13 +135,26 @@
         padding: 0 !important;
       }
 
-      .print-grid .img-wrapper, 
-      .print-grid img {
+      .magnet-item {
         width: 7cm !important;
         height: 7cm !important;
-        border-radius: 0 !important;
-        object-fit: cover !important;
+        border: 0.5pt solid #000 !important; /* İnce Siyah Kesim Çizgisi */
+        box-sizing: border-box !important;
       }
+
+      .magnet-item .photo-area {
+        width: 5cm !important;
+        height: 5cm !important;
+      }
+
+      .border-text {
+        font-size: 6pt !important;
+      }
+
+      .border-text.top { top: 2mm !important; }
+      .border-text.bottom { bottom: 2mm !important; }
+      .border-text.left { left: -6mm !important; }
+      .border-text.right { right: -6mm !important; }
     }
   </style>
 </head>
@@ -165,14 +222,34 @@
 
       if (imagesList && Array.isArray(imagesList)) {
         imagesList.forEach(imgSrc => {
-          const wrapper = document.createElement('div');
-          wrapper.className = 'img-wrapper';
+          // Magnet Ana Kutusu (7x7 cm)
+          const magnetItem = document.createElement('div');
+          magnetItem.className = 'magnet-item';
+
+          // 180 Derece Döndürülmüş Kenar Yazıları
+          const textTop = document.createElement('span');
+          textTop.className = 'border-text top';
+          textTop.innerText = 'Søstermagnet - Bilge og iLKE';
+
+          const textBottom = document.createElement('span');
+          textBottom.className = 'border-text bottom';
+          textBottom.innerText = 'Søstermagnet - Bilge og iLKE';
+
+          // Fotoğraf Alanı (5x5 cm)
+          const photoArea = document.createElement('div');
+          photoArea.className = 'photo-area';
 
           const img = document.createElement('img');
           img.src = imgSrc;
+
+          photoArea.appendChild(img);
           
-          wrapper.appendChild(img);
-          grid.appendChild(wrapper);
+          // Katmanları Ekle
+          magnetItem.appendChild(textTop);
+          magnetItem.appendChild(textBottom);
+          magnetItem.appendChild(photoArea);
+
+          grid.appendChild(magnetItem);
         });
       }
 
