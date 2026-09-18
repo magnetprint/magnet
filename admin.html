@@ -48,7 +48,7 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 5x5 cm Görsel Area */
+    /* Ortadaki 5x5 cm Görsel Alanı */
     .magnet-item .photo-area {
       width: 71.4%; /* 7cm içinde 5cm oranında (~%71.4) */
       height: 71.4%;
@@ -64,23 +64,27 @@
       display: block;
     }
 
-    /* 1'er cm'lik Kenar Payındaki Reklam Yazıları (180 derece DÖNDÜRÜLMÜŞ) */
+    /* Kenar Payındaki Reklam Yazıları (Kıvrılınca düz okunması için 180 derece ters) */
     .border-text {
       position: absolute;
       font-size: 7px;
-      font-weight: bold;
+      font-weight: 600;
       color: #333;
       white-space: nowrap;
-      transform: rotate(180deg); /* Kıvrılınca düz okunması için 180 derece ters */
       z-index: 1;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
     }
 
-    .border-text.top { top: 2px; left: 50%; transform: translateX(-50%) rotate(180deg); }
-    .border-text.bottom { bottom: 2px; left: 50%; transform: translateX(-50%) rotate(180deg); }
-    .border-text.left { left: -15px; top: 50%; transform: translateY(-50%) rotate(90deg); } /* Yan kenar için ayarlama */
-    .border-text.right { right: -15px; top: 50%; transform: translateY(-50%) rotate(270deg); }
+    /* Yazıları kesim çizgisinden uzakta, görsele yakın konumlandırma */
+    .border-text.top { 
+      top: 17%; 
+      left: 50%; 
+      transform: translateX(-50%) rotate(180deg); 
+    }
+    .border-text.bottom { 
+      bottom: 17%; 
+      left: 50%; 
+      transform: translateX(-50%) rotate(180deg); 
+    }
 
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
@@ -151,10 +155,9 @@
         font-size: 6pt !important;
       }
 
-      .border-text.top { top: 2mm !important; }
-      .border-text.bottom { bottom: 2mm !important; }
-      .border-text.left { left: -6mm !important; }
-      .border-text.right { right: -6mm !important; }
+      /* Baskıda görsele yakın tutma (Kesim payından uzak) */
+      .border-text.top { top: 6mm !important; }
+      .border-text.bottom { bottom: 6mm !important; }
     }
   </style>
 </head>
@@ -226,14 +229,14 @@
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
-          // 180 Derece Döndürülmüş Kenar Yazıları
+          // 180 Derece Döndürülmüş Kenar Yazıları (Görsele yakın yerleştirilmiş)
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
-          textTop.innerText = 'Søstermagnet - Bilge og iLKE';
+          textTop.innerText = ’Søstermagnet - Bilge og iLKE';
 
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
-          textBottom.innerText = 'Søstermagnet - Bilge og iLKE';
+          textBottom.innerText = 'Produsert i Moss’;
 
           // Fotoğraf Alanı (5x5 cm)
           const photoArea = document.createElement('div');
