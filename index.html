@@ -41,9 +41,23 @@
       background: #007aff; color: white; border: none; padding: 16px 20px;
       border-radius: 12px; font-size: 16px; font-weight: 600; width: 100%;
       cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.25);
-      margin-bottom: 20px; transition: background 0.2s;
+      margin-bottom: 12px; transition: background 0.2s;
     }
     .btn-select:active { background: #0056b3; }
+
+    /* Resimler yüklendikten sonra belirecek bilgi notu */
+    .crop-info-text {
+      display: none; /* Başlangıçta gizli */
+      font-size: 13px;
+      color: #007aff;
+      background: #f0f7ff;
+      border: 1px dashed #b3d7ff;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      text-align: center;
+    }
 
     /* Önizleme Grid'i (2 Sütun x 3 Satır) */
     .a4-preview {
@@ -110,6 +124,11 @@
 
   <button class="btn-select" id="uploadBtn" onclick="document.getElementById('multiInput').click()">Velg 6 bilder fra galleriet</button>
   <input type="file" id="multiInput" accept="image/*" multiple style="display:none;" onchange="handleFiles(this.files)">
+
+  <!-- Yükleme tamamlandıktan sonra görünecek bilgi metni -->
+  <div class="crop-info-text" id="cropInfoNote">
+    💡 <strong>Tips:</strong> Trykk på et bilde for å justere utsnittet eller beskjære det.
+  </div>
 
   <div class="a4-preview" id="gridContainer"></div>
 
@@ -213,6 +232,8 @@
 
         if (loadedCount === targetCount) {
           document.getElementById('submitBtn').disabled = false;
+          // Tüm 6 resim yüklendikten sonra ipucu notunu göster
+          document.getElementById('cropInfoNote').style.display = 'block';
         }
       });
     });
