@@ -48,10 +48,10 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 5x5 cm Görsel Alanı */
+    /* Ortadaki 6x6 cm Görsel Alanı (7 cm içinde 6 cm = %85.7) */
     .magnet-item .photo-area {
-      width: 71.4%; /* 7cm içinde 5cm oranında (~%71.4) */
-      height: 71.4%;
+      width: 85.7%; 
+      height: 85.7%;
       position: relative;
       z-index: 2;
       overflow: hidden;
@@ -67,21 +67,21 @@
     /* Kenar Payındaki Reklam Yazıları (Kıvrılınca düz okunması için 180 derece ters) */
     .border-text {
       position: absolute;
-      font-size: 7px;
+      font-size: 6.5px;
       font-weight: 600;
       color: #333;
       white-space: nowrap;
       z-index: 1;
     }
 
-    /* Yazıları kesim çizgisinden uzakta, görsele yakın konumlandırma */
+    /* Yazıları kesim çizgisinden uzakta, görsele yakın yerleştirme (0.5cm boşlukta) */
     .border-text.top { 
-      top: 17%; 
+      top: 8%; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
     .border-text.bottom { 
-      bottom: 17%; 
+      bottom: 8%; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
@@ -89,7 +89,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm KESİM PAYLI */
+    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm KESİM PAYLI (İÇİ 6cm x 6cm) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -147,17 +147,17 @@
       }
 
       .magnet-item .photo-area {
-        width: 5cm !important;
-        height: 5cm !important;
+        width: 6cm !important;
+        height: 6cm !important;
       }
 
       .border-text {
-        font-size: 6pt !important;
+        font-size: 5.5pt !important;
       }
 
-      /* Baskıda görsele yakın tutma (Kesim payından uzak) */
-      .border-text.top { top: 6mm !important; }
-      .border-text.bottom { bottom: 6mm !important; }
+      /* Baskıda 0.5 cm'lik boşluğun ortasına denk getirme */
+      .border-text.top { top: 2.5mm !important; }
+      .border-text.bottom { bottom: 2.5mm !important; }
     }
   </style>
 </head>
@@ -229,16 +229,16 @@
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
-          // 180 Derece Döndürülmüş Kenar Yazıları (Görsele yakın yerleştirilmiş)
+          // 180 Derece Döndürülmüş Kenar Yazıları
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
-          textTop.innerText = ’Søstermagnet - Bilge og iLKE';
+          textTop.innerText = 'Produsert i Moss - Bilge og iLKE';
 
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
-          textBottom.innerText = 'Produsert i Moss’;
+          textBottom.innerText = 'Produsert i Moss - Bilge og iLKE';
 
-          // Fotoğraf Alanı (5x5 cm)
+          // Fotoğraf Alanı (6x6 cm)
           const photoArea = document.createElement('div');
           photoArea.className = 'photo-area';
 
