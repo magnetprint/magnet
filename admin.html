@@ -48,7 +48,7 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 6x6 cm Görsel Alanı */
+    /* Ortadaki 6x6 cm Görsel Alanı (7 cm içinde 6 cm) */
     .magnet-item .photo-area {
       width: 85.7%; 
       height: 85.7%;
@@ -67,7 +67,7 @@
       display: block;
     }
 
-    /* Kenar Payındaki Reklam Yazıları */
+    /* Kenar Payındaki Reklam Yazıları (180 Derece Ters) */
     .border-text {
       position: absolute;
       font-size: 6.5px;
@@ -92,50 +92,75 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ */
+    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm (İÇİ 6cm x 6cm) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
       margin: 0;
     }
 
-@media print {
-  .print-grid {
-    display: grid !important;
-    /* 7.4 cm'lik 2 sütun ve 3 satır */
-    grid-template-columns: repeat(2, 7.4cm) !important;
-    grid-template-rows: repeat(3, 7.4cm) !important;
-    gap: 1.2cm 3.2cm !important; /* Dikey: 1.2cm, Yatay: 3.2cm */
-    justify-content: center !important;
-    align-content: center !important;
-    width: 210mm !important;
-    height: 297mm !important;
-    border: none !important;
-    margin: 0 auto !important;
-    padding: 0 !important;
-  }
+    @media print {
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        overflow: hidden;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      .search-box, h1, .result-card h3, .result-card p, .btn-print {
+        display: none !important;
+      }
 
-  .magnet-item {
-    width: 7.4cm !important;
-    height: 7.4cm !important;
-    border: 0.5pt solid #000 !important; /* Kesim Çizgisi */
-    box-sizing: border-box !important;
-  }
+      .container, .result-card {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+      }
 
-  .magnet-item .photo-area {
-    /* Yazıcı %95.7 küçülttüğünde ortadaki fotoğraf tam 6 cm kalacaktır */
-    width: 6.3cm !important;
-    height: 6.3cm !important;
-  }
+      .print-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, 7cm) !important;
+        grid-template-rows: repeat(3, 7cm) !important;
+        gap: 1.5cm 3.8cm !important;
+        justify-content: center !important;
+        align-content: center !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        border: none !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+      }
 
-  .border-text {
-    font-size: 5.5pt !important;
-  }
+      .magnet-item {
+        width: 7cm !important;
+        height: 7cm !important;
+        border: 0.5pt solid #000 !important;
+        box-sizing: border-box !important;
+      }
 
-  .border-text.top { top: 1.5mm !important; }
-  .border-text.bottom { bottom: 1.5mm !important; }
-}
+      .magnet-item .photo-area {
+        width: 6cm !important;
+        height: 6cm !important;
+      }
 
+      .border-text {
+        font-size: 5.5pt !important;
+      }
+
+      .border-text.top { top: 1.5mm !important; }
+      .border-text.bottom { bottom: 1.5mm !important; }
+    }
   </style>
 </head>
 <body>
@@ -198,7 +223,7 @@
       const grid = document.getElementById('printGrid');
       grid.innerHTML = '';
 
-      // Firebase verisinin dizi mi yoksa nesne mi olduğunu kontrol et
+      // Firebase dizi/nesne uyumluluk kontrolü
       let imagesList = [];
       if (data.images) {
         imagesList = Array.isArray(data.images) ? data.images : Object.values(data.images);
@@ -213,11 +238,11 @@
 
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
-          textTop.innerText = 'Søstermagnet - Bilge og iLKE';
+          textTop.innerText = ‘Søstermagnet - Bilge og iLKE';
 
           const textBottom = document.createElement('span');
           textBottom.className = 'border-text bottom';
-          textBottom.innerText = 'Produsert i Moss';
+          textBottom.innerText = 'Produsert i Moss’;
 
           const photoArea = document.createElement('div');
           photoArea.className = 'photo-area';
