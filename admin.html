@@ -16,21 +16,13 @@
     
     h1 { color: #333; margin-bottom: 20px; }
     
-    .search-box {
-      display: flex; gap: 10px; margin-bottom: 25px;
-    }
-    input[type="text"] {
-      flex: 1; padding: 14px; border: 2px solid #007aff; border-radius: 8px; font-size: 20px; text-align: center; font-weight: bold;
-    }
-    .btn-search {
-      background: #007aff; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
-    }
+    .search-box { display: flex; gap: 10px; margin-bottom: 25px; }
+    input[type="text"] { flex: 1; padding: 14px; border: 2px solid #007aff; border-radius: 8px; font-size: 20px; text-align: center; font-weight: bold; }
+    .btn-search { background: #007aff; color: white; border: none; padding: 14px 24px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
     
-    .result-card {
-      display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center;
-    }
+    .result-card { display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
     
-    /* A4 Baskı Şablonu */
+    /* Ekran Önizlemesi */
     .print-grid {
       width: 100%;
       max-width: 400px;
@@ -42,35 +34,69 @@
       grid-template-columns: 1fr 1fr;
       gap: 12px;
     }
+    .print-grid .img-wrapper { width: 100%; aspect-ratio: 1 / 1; overflow: hidden; border-radius: 4px; background: #eee; }
+    .print-grid img { width: 100%; height: 100%; object-fit: cover; display: block; }
     
-    /* Mükemmel Kare Çerçeveler */
-    .print-grid .img-wrapper {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      overflow: hidden;
-      border-radius: 6px;
-      background: #eee;
+    .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
+
+    /* ========================================================= */
+    /* YAZICI VE BASKAYI TAM 6x6 CM YAPMA AYARLARI (@media print) */
+    /* ========================================================= */
+    @page {
+      size: A4 portrait;
+      margin: 0; /* Kenar boşluklarını sıfırlayarak tam boyut hizalar */
     }
 
-    .print-grid img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    
-    .btn-print {
-      background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px;
-    }
-
-    /* Yazıcıya Gönderildiğinde Sadece Şablonu Göster */
     @media print {
-      body { background: white; padding: 0; margin: 0; }
-      .container { max-width: 100%; }
-      .search-box, h1, .result-card h3, .result-card p, .btn-print { display: none !important; }
-      .result-card { box-shadow: none; padding: 0; background: transparent; display: block !important; }
+      body {
+        background: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      
+      /* Ekranda görünen tüm butonları ve aramayı gizle */
+      .search-box, h1, .result-card h3, .result-card p, .btn-print {
+        display: none !important;
+      }
+
+      .container, .result-card {
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+        background: transparent !important;
+        display: block !important;
+      }
+
+      /* A4 Sayfası Üzerinde 2 Sütun x 3 Satır Hizalaması */
       .print-grid {
-        position: absolute; left: 0; top: 0; width: 100%; max-width: 100%; border: none; padding: 0; margin: 0; gap: 15px;
+        display: grid !important;
+        grid-template-columns: repeat(2, 6cm) !important; /* 2 Sütun, her biri tam 6cm */
+        grid-template-rows: repeat(3, 6cm) !important;    /* 3 Satır, her biri tam 6cm */
+        gap: 1cm !important;                              /* Kareler arası 1cm boşluk */
+        justify-content: center !important;
+        align-content: center !important;
+        padding-top: 3cm !important;                       /* A4 kağıdın ortasına denk getirmek için dikey marjin */
+        width: 210mm !important;
+        height: 297mm !important;
+        border: none !important;
+        margin: 0 auto !important;
+      }
+
+      /* Her bir fotoğraf alanı tam olarak 6cm x 6cm boyutunda basılır */
+      .print-grid .img-wrapper {
+        width: 6cm !important;
+        height: 6cm !important;
+        border-radius: 0 !important;
+      }
+
+      .print-grid img {
+        width: 6cm !important;
+        height: 6cm !important;
+        object-fit: cover !important;
       }
     }
   </style>
@@ -156,9 +182,7 @@
     });
   }
 
-  // Mobil & Masaüstü Uyumlu Yazdırma Tetikleyicisi
   function startMobilePrint() {
-    // Mobil Safari/Chrome dokunma olayının (user interaction) işlenmesi için kısa gecikme
     setTimeout(function() {
       window.print();
     }, 150);
