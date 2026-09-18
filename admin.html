@@ -22,7 +22,7 @@
     
     .result-card { display: none; background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
     
-    /* Ekran Önizlemesi */
+    /* Web Ekranı Önizlemesi */
     .print-grid {
       width: 100%;
       max-width: 400px;
@@ -40,23 +40,25 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* YAZICI VE BASKAYI TAM 6x6 CM YAPMA AYARLARI (@media print) */
+    /* TEK A4 SAYFASINA KUSURSUZ SIĞDIRMA (@media print) */
     /* ========================================================= */
     @page {
       size: A4 portrait;
-      margin: 0; /* Kenar boşluklarını sıfırlayarak tam boyut hizalar */
+      margin: 0;
     }
 
     @media print {
-      body {
-        background: white !important;
+      html, body {
+        width: 210mm;
+        height: 297mm;
         margin: 0 !important;
         padding: 0 !important;
+        background: white !important;
+        overflow: hidden;
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
       }
       
-      /* Ekranda görünen tüm butonları ve aramayı gizle */
       .search-box, h1, .result-card h3, .result-card p, .btn-print {
         display: none !important;
       }
@@ -64,29 +66,30 @@
       .container, .result-card {
         max-width: 100% !important;
         width: 100% !important;
+        height: 100% !important;
         padding: 0 !important;
         margin: 0 !important;
         box-shadow: none !important;
         background: transparent !important;
-        display: block !important;
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
       }
 
-      /* A4 Sayfası Üzerinde 2 Sütun x 3 Satır Hizalaması */
       .print-grid {
         display: grid !important;
-        grid-template-columns: repeat(2, 6cm) !important; /* 2 Sütun, her biri tam 6cm */
-        grid-template-rows: repeat(3, 6cm) !important;    /* 3 Satır, her biri tam 6cm */
-        gap: 1cm !important;                              /* Kareler arası 1cm boşluk */
+        grid-template-columns: repeat(2, 6cm) !important;
+        grid-template-rows: repeat(3, 6cm) !important;
+        gap: 0.8cm !important;
         justify-content: center !important;
         align-content: center !important;
-        padding-top: 3cm !important;                       /* A4 kağıdın ortasına denk getirmek için dikey marjin */
         width: 210mm !important;
         height: 297mm !important;
         border: none !important;
         margin: 0 auto !important;
+        padding: 0 !important;
       }
 
-      /* Her bir fotoğraf alanı tam olarak 6cm x 6cm boyutunda basılır */
       .print-grid .img-wrapper {
         width: 6cm !important;
         height: 6cm !important;
