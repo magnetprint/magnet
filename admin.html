@@ -99,68 +99,43 @@
       margin: 0;
     }
 
-    @media print {
-      html, body {
-        width: 210mm;
-        height: 297mm;
-        margin: 0 !important;
-        padding: 0 !important;
-        background: white !important;
-        overflow: hidden;
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-      }
-      
-      .search-box, h1, .result-card h3, .result-card p, .btn-print {
-        display: none !important;
-      }
+@media print {
+  .print-grid {
+    display: grid !important;
+    /* 7.4 cm'lik 2 sütun ve 3 satır */
+    grid-template-columns: repeat(2, 7.4cm) !important;
+    grid-template-rows: repeat(3, 7.4cm) !important;
+    gap: 1.2cm 3.2cm !important; /* Dikey: 1.2cm, Yatay: 3.2cm */
+    justify-content: center !important;
+    align-content: center !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+  }
 
-      .container, .result-card {
-        max-width: 100% !important;
-        width: 100% !important;
-        height: 100% !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-        background: transparent !important;
-        display: flex !important;
-        justify-content: center;
-        align-items: center;
-      }
+  .magnet-item {
+    width: 7.4cm !important;
+    height: 7.4cm !important;
+    border: 0.5pt solid #000 !important; /* Kesim Çizgisi */
+    box-sizing: border-box !important;
+  }
 
-      .print-grid {
-        display: grid !important;
-        grid-template-columns: repeat(2, 7cm) !important;
-        grid-template-rows: repeat(3, 7cm) !important;
-        gap: 1.5cm 3.8cm !important;
-        justify-content: center !important;
-        align-content: center !important;
-        width: 210mm !important;
-        height: 297mm !important;
-        border: none !important;
-        margin: 0 auto !important;
-        padding: 0 !important;
-      }
+  .magnet-item .photo-area {
+    /* Yazıcı %95.7 küçülttüğünde ortadaki fotoğraf tam 6 cm kalacaktır */
+    width: 6.3cm !important;
+    height: 6.3cm !important;
+  }
 
-      .magnet-item {
-        width: 7cm !important;
-        height: 7cm !important;
-        border: 0.5pt solid #000 !important;
-        box-sizing: border-box !important;
-      }
+  .border-text {
+    font-size: 5.5pt !important;
+  }
 
-      .magnet-item .photo-area {
-        width: 6cm !important;
-        height: 6cm !important;
-      }
+  .border-text.top { top: 1.5mm !important; }
+  .border-text.bottom { bottom: 1.5mm !important; }
+}
 
-      .border-text {
-        font-size: 5.5pt !important;
-      }
-
-      .border-text.top { top: 1.5mm !important; }
-      .border-text.bottom { bottom: 1.5mm !important; }
-    }
   </style>
 </head>
 <body>
