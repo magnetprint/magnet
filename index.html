@@ -21,6 +21,18 @@
     .logo-container { margin-bottom: 20px; text-align: center; }
     .logo-container img { max-width: 180px; height: auto; display: block; margin: 0 auto; }
 
+    /* Paket Seçim Butonları */
+    .package-selector {
+      display: flex; gap: 10px; margin-bottom: 20px; justify-content: center;
+    }
+    .pkg-btn {
+      flex: 1; padding: 12px; border: 2px solid #007aff; background: white; color: #007aff;
+      border-radius: 10px; font-weight: bold; font-size: 15px; cursor: pointer; transition: all 0.2s;
+    }
+    .pkg-btn.active {
+      background: #007aff; color: white;
+    }
+
     .btn-select {
       background: #007aff; color: white; border: none; padding: 16px 20px;
       border-radius: 12px; font-size: 16px; font-weight: 600; width: 100%;
@@ -29,20 +41,37 @@
     }
     .btn-select:active { background: #0056b3; }
 
+    /* Dinamik Önizleme Grid'i */
     .a4-preview {
-      width: 100%; aspect-ratio: 1 / 1.414; background: white; border: 1px solid #e0e0e0;
-      border-radius: 12px; padding: 10px; display: grid;
-      grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; gap: 10px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.08); margin-bottom: 20px;
+      width: 100%;
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 12px;
+      padding: 15px;
+      display: grid;
+      gap: 10px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+      margin-bottom: 20px;
     }
+
+    /* Tam Kare Yuvalar */
     .slot {
-      border: 2px dashed #ccc; border-radius: 8px; display: flex; justify-content: center;
-      align-items: center; overflow: hidden; position: relative; background: #fafafa;
-      cursor: pointer; transition: border-color 0.2s;
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+      background: #fafafa;
+      cursor: pointer;
+      transition: border-color 0.2s;
     }
     .slot.filled { border: 2px solid #007aff; }
-    .slot img { width: 100%; height: 100%; object-fit: cover; }
-    .slot-icon { font-size: 24px; color: #bbb; font-weight: 300; }
+    .slot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .slot-icon { font-size: 20px; color: #bbb; font-weight: 300; }
     
     .btn-submit {
       background: #34c759; color: white; border: none; padding: 16px;
@@ -71,21 +100,22 @@
 <body>
 
 <div class="container">
-  <!-- Logo Område -->
   <div class="logo-container">
     <img src="logo.png" alt="Logo" onerror="this.style.display='none'">
   </div>
 
-  <button class="btn-select" onclick="document.getElementById('multiInput').click()">Velg 6 bilder fra galleriet</button>
+  <!-- Varyasyon Seçimi (6, 9, 12) -->
+  <div class="package-selector">
+    <button class="pkg-btn active" onclick="setPackage(6)">6 Bildermagneter</button>
+    <button class="pkg-btn" onclick="setPackage(9)">9 Bildermagneter</button>
+    <button class="pkg-btn" onclick="setPackage(12)">12 Bildermagneter</button>
+  </div>
+
+  <button class="btn-select" id="uploadBtn" onclick="document.getElementById('multiInput').click()">Velg 6 bilder fra galleriet</button>
   <input type="file" id="multiInput" accept="image/*" multiple style="display:none;" onchange="handleFiles(this.files)">
 
-  <div class="a4-preview">
-    <div class="slot" id="slot-0" onclick="editSlot(0)"><span class="slot-icon">+</span></div>
-    <div class="slot" id="slot-1" onclick="editSlot(1)"><span class="slot-icon">+</span></div>
-    <div class="slot" id="slot-2" onclick="editSlot(2)"><span class="slot-icon">+</span></div>
-    <div class="slot" id="slot-3" onclick="editSlot(3)"><span class="slot-icon">+</span></div>
-    <div class="slot" id="slot-4" onclick="editSlot(4)"><span class="slot-icon">+</span></div>
-    <div class="slot" id="slot-5" onclick="editSlot(5)"><span class="slot-icon">+</span></div>
+  <div class="a4-preview" id="gridContainer">
+    <!-- Yuvalar JavaScript ile dinamik oluşacak -->
   </div>
 
   <button class="btn-submit" id="submitBtn" disabled onclick="uploadImages()">Få utskriftskode</button>
@@ -109,7 +139,6 @@
 </div>
 
 <script>
-  // Firebase Konfigurasjon
   const firebaseConfig = {
     apiKey: "AIzaSyD2-k8VLYC-h4WEs5AbnH16wT9AYISjK8g",
     authDomain: "magnet-c8c2a.firebaseapp.com",
@@ -120,20 +149,58 @@
     appId: "1:148748324402:web:878ce829b2038c8613362b"
   };
   
-  try {
-    firebase.initializeApp(firebaseConfig);
-  } catch (e) {
-    console.log("Firebase initialize error:", e);
-  }
-  
+  try { firebase.initializeApp(firebaseConfig); } catch (e) {}
   const db = firebase.database();
 
-  let originalImages = new Array(6).fill(null);
-  let processedImages = new Array(6).fill(null);
+  let targetCount = 6; // Varsayılan 6 foto
+  let originalImages = [];
+  let processedImages = [];
   let cropper = null;
   let currentSlotIndex = null;
 
-  // Fotoğrafları sıkıştırarak Data URL dönüştürme fonksiyonu
+  // Başlangıçta Grid'i Yapılandır
+  initGrid();
+
+  function setPackage(count) {
+    targetCount = count;
+    
+    // Buton Stillerini Güncelle
+    const buttons = document.querySelectorAll('.pkg-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Buton Metnini Güncelle
+    document.getElementById('uploadBtn').innerText = `Velg ${targetCount} bilder fra galleriet`;
+
+    initGrid();
+  }
+
+  function initGrid() {
+    originalImages = new Array(targetCount).fill(null);
+    processedImages = new Array(targetCount).fill(null);
+    document.getElementById('submitBtn').disabled = true;
+
+    const grid = document.getElementById('gridContainer');
+    grid.innerHTML = '';
+
+    // Sütun Yapısını Ayarla (6 için 2 sütun, 9 ve 12 için 3 sütun)
+    if (targetCount === 6) {
+      grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+    } else {
+      grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+    }
+
+    // Kare Yuvalarını Dinamik Oluştur
+    for (let i = 0; i < targetCount; i++) {
+      const slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.id = `slot-${i}`;
+      slot.onclick = () => editSlot(i);
+      slot.innerHTML = `<span class="slot-icon">+</span>`;
+      grid.appendChild(slot);
+    }
+  }
+
   function compressImage(file, maxWidth, quality, callback) {
     const reader = new FileReader();
     reader.onload = function(e) {
@@ -154,9 +221,7 @@
         const ctx = canvas.getContext('2d');
         ctx.drawImage(img, 0, 0, width, height);
         
-        // JPEG kalitesini düşürerek boyutu %80 küçültür
-        const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
-        callback(compressedDataUrl);
+        callback(canvas.toDataURL('image/jpeg', quality));
       };
       img.src = e.target.result;
     };
@@ -164,8 +229,8 @@
   }
 
   function handleFiles(files) {
-    if (files.length !== 6) {
-      alert("Vennligst velg nøyaktig 6 bilder! (Valgt nå: " + files.length + ")");
+    if (files.length !== targetCount) {
+      alert(`Vennligst velg nøyaktig ${targetCount} bilder! (Valgt nå: ${files.length})`);
       return;
     }
 
@@ -178,7 +243,7 @@
         updateSlotUI(index, compressedUrl);
         loadedCount++;
 
-        if (loadedCount === 6) {
+        if (loadedCount === targetCount) {
           document.getElementById('submitBtn').disabled = false;
         }
       });
@@ -217,7 +282,7 @@
 
   function saveCrop() {
     if (!cropper) return;
-    const canvas = cropper.getCroppedCanvas({ width: 500, height: 500 });
+    const canvas = cropper.getCroppedCanvas({ width: 600, height: 600 });
     const croppedDataURL = canvas.toDataURL('image/jpeg', 0.7);
 
     processedImages[currentSlotIndex] = croppedDataURL;
@@ -232,14 +297,14 @@
 
     const code = Math.floor(1000 + Math.random() * 9000).toString();
     
-    // Yükleme işlemini zaman aşımına karşı takip edelim (10 saniye)
     const timeout = setTimeout(() => {
       alert("Nettverket er tregt. Vennligst prøv igjen!");
       submitBtn.disabled = false;
       submitBtn.innerText = "Få utskriftskode";
-    }, 10000);
+    }, 12000);
 
     db.ref('prints/' + code).set({
+      count: targetCount, // Seçilen adet bilgisi de veritabanına yazılır
       images: processedImages,
       timestamp: Date.now()
     }).then(() => {
