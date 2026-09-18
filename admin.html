@@ -40,7 +40,7 @@
       position: relative;
       width: 100%;
       aspect-ratio: 1 / 1;
-      border: 1px solid #000; /* İnce siyah kesim çizgisi */
+      border: 1px solid #000;
       background: #fff;
       display: flex;
       justify-content: center;
@@ -48,13 +48,16 @@
       overflow: hidden;
     }
 
-    /* Ortadaki 6x6 cm Görsel Alanı (7 cm içinde 6 cm = %85.7) */
+    /* Ortadaki 6x6 cm Görsel Alanı */
     .magnet-item .photo-area {
       width: 85.7%; 
       height: 85.7%;
       position: relative;
       z-index: 2;
       overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .magnet-item img {
@@ -64,7 +67,7 @@
       display: block;
     }
 
-    /* Kenar Payındaki Reklam Yazıları (Kıvrılınca düz okunması için 180 derece ters) */
+    /* Kenar Payındaki Reklam Yazıları */
     .border-text {
       position: absolute;
       font-size: 6.5px;
@@ -72,16 +75,16 @@
       color: #333;
       white-space: nowrap;
       z-index: 1;
+      pointer-events: none;
     }
 
-    /* Yazıları kesim çizgisinden uzakta, görsele yakın yerleştirme (0.5cm boşlukta) */
     .border-text.top { 
-      top: 8%; 
+      top: 2%; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
     .border-text.bottom { 
-      bottom: 8%; 
+      bottom: 2%; 
       left: 50%; 
       transform: translateX(-50%) rotate(180deg); 
     }
@@ -89,7 +92,7 @@
     .btn-print { background: #34c759; color: white; border: none; padding: 16px; border-radius: 8px; font-size: 18px; font-weight: bold; cursor: pointer; width: 100%; margin-top: 15px; }
 
     /* ========================================================= */
-    /* A4 BASKI DÜZENİ - TAM 7cm x 7cm KESİM PAYLI (İÇİ 6cm x 6cm) */
+    /* A4 BASKI DÜZENİ */
     /* ========================================================= */
     @page {
       size: A4 portrait;
@@ -142,7 +145,7 @@
       .magnet-item {
         width: 7cm !important;
         height: 7cm !important;
-        border: 0.5pt solid #000 !important; /* İnce Siyah Kesim Çizgisi */
+        border: 0.5pt solid #000 !important;
         box-sizing: border-box !important;
       }
 
@@ -155,9 +158,8 @@
         font-size: 5.5pt !important;
       }
 
-      /* Baskıda 0.5 cm'lik boşluğun ortasına denk getirme */
-      .border-text.top { top: 2.5mm !important; }
-      .border-text.bottom { bottom: 2.5mm !important; }
+      .border-text.top { top: 1.5mm !important; }
+      .border-text.bottom { bottom: 1.5mm !important; }
     }
   </style>
 </head>
@@ -221,15 +223,19 @@
       const grid = document.getElementById('printGrid');
       grid.innerHTML = '';
 
-      const imagesList = data.images || data.photos;
+      // Firebase verisinin dizi mi yoksa nesne mi olduğunu kontrol et
+      let imagesList = [];
+      if (data.images) {
+        imagesList = Array.isArray(data.images) ? data.images : Object.values(data.images);
+      } else if (data.photos) {
+        imagesList = Array.isArray(data.photos) ? data.photos : Object.values(data.photos);
+      }
 
-      if (imagesList && Array.isArray(imagesList)) {
+      if (imagesList && imagesList.length > 0) {
         imagesList.forEach(imgSrc => {
-          // Magnet Ana Kutusu (7x7 cm)
           const magnetItem = document.createElement('div');
           magnetItem.className = 'magnet-item';
 
-          // 180 Derece Döndürülmüş Kenar Yazıları
           const textTop = document.createElement('span');
           textTop.className = 'border-text top';
           textTop.innerText = 'Produsert i Moss - Bilge og iLKE';
@@ -238,25 +244,25 @@
           textBottom.className = 'border-text bottom';
           textBottom.innerText = 'Produsert i Moss - Bilge og iLKE';
 
-          // Fotoğraf Alanı (6x6 cm)
           const photoArea = document.createElement('div');
           photoArea.className = 'photo-area';
 
           const img = document.createElement('img');
           img.src = imgSrc;
+          img.alt = "Bilde";
 
           photoArea.appendChild(img);
           
-          // Katmanları Ekle
           magnetItem.appendChild(textTop);
           magnetItem.appendChild(textBottom);
           magnetItem.appendChild(photoArea);
 
           grid.appendChild(magnetItem);
         });
+        document.getElementById('resultCard').style.display = 'block';
+      } else {
+        alert("Bildene kunne ikke finnes i denne koden.");
       }
-
-      document.getElementById('resultCard').style.display = 'block';
 
     }).catch(err => {
       alert("Feil ved henting: " + err.message);
