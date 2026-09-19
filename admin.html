@@ -24,6 +24,7 @@
     
     /* Web Önizleme Grid'i */
     .print-grid {
+      position: relative;
       width: 100%;
       max-width: 400px;
       background: white;
@@ -33,6 +34,31 @@
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 12px;
+    }
+
+    /* Üst ve Alt Kesim Çentikleri (Cetvel Hizalama Noktaları) */
+    .print-grid::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 8px;
+      background-color: #e74c3c; /* Üst Çentik */
+      z-index: 100;
+    }
+
+    .print-grid::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 1px;
+      height: 8px;
+      background-color: #e74c3c; /* Alt Çentik */
+      z-index: 100;
     }
 
     /* Magnet Kutu Yapısı (7x7 cm Şablonu) */
@@ -143,7 +169,22 @@
         border: none !important;
         margin: 0 auto !important;
         padding: 0 !important;
-        transform: none !important; /* Sağa/sola kaydırma kaldırıldı, tam ortalandı */
+        transform: none !important;
+      }
+
+      /* Baskıda Üst ve Alt Kesim Çentiklerinin Konumu ve Görünürlüğü */
+      .print-grid::before {
+        top: 1.5cm !important; /* Sayfanın en üstünden kesim bölgesine yakın */
+        height: 8mm !important;
+        width: 0.5pt !important;
+        background-color: #000000 !important;
+      }
+
+      .print-grid::after {
+        bottom: 1.5cm !important; /* Sayfanın en altından kesim bölgesine yakın */
+        height: 8mm !important;
+        width: 0.5pt !important;
+        background-color: #000000 !important;
       }
 
       .magnet-item {
